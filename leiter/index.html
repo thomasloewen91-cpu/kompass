@@ -89,10 +89,11 @@ svg{max-width:100%;height:auto;display:block}
 .qr-overlay{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3vh 5vw;padding:calc(env(safe-area-inset-top,0px) + 70px) 4vw calc(env(safe-area-inset-bottom,0px) + 24px);overflow:auto}
 .qr-box{background:#fff;padding:1.5vmin;width:min(78vh,88vw);flex:none}
 .qr-svg{width:100%;height:auto;display:block}
-.qr-info{max-width:30rem}
+.qr-info{max-width:34rem}
 .qr-small{color:var(--muted);font-size:clamp(1rem,2.2vw,1.4rem);margin:0}
-.qr-url{font-family:"Young Serif",Georgia,serif;font-size:clamp(1.6rem,3.6vw,2.8rem);margin:4px 0 4vh;overflow-wrap:anywhere}
-.qr-pin{font-family:"Young Serif",Georgia,serif;font-size:clamp(4rem,11vw,8rem);letter-spacing:.12em;line-height:1;margin:6px 0 0;color:var(--yolk)}
+.qr-url{font-family:"Young Serif",Georgia,serif;font-size:clamp(1rem,2vw,2.1rem);margin:4px 0 4vh;white-space:nowrap}
+.qr-pin{font-family:"Young Serif",Georgia,serif;font-size:clamp(4rem,11vw,8rem);letter-spacing:.12em;line-height:1;margin:6px 0 4vh;color:var(--yolk)}
+.qr-count{font-family:"Young Serif",Georgia,serif;font-size:clamp(1.8rem,4vw,3rem);line-height:1;margin:6px 0 0;font-variant-numeric:tabular-nums}
 .qr-close{position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;padding:10px 18px}
 @media (max-aspect-ratio:1/1){.qr-info{text-align:center}}
 /* Brand */
@@ -169,6 +170,8 @@ svg{max-width:100%;height:auto;display:block}
       <p class="qr-url">kompass.thomasloewen.de</p>
       <p class="qr-small">Gruppen-PIN</p>
       <p class="qr-pin" id="qrPin"></p>
+      <p class="qr-small">Bisher eingegangen</p>
+      <p class="qr-count"><span id="qrCount">0</span> <span id="qrCountLbl" class="qr-small" style="display:inline">Ergebnisse</span></p>
     </div>
   </div>
 
@@ -271,7 +274,7 @@ function openSession(pin){
 function render(all){
   const docs=all.filter(d=>typeof d.x==="number"&&typeof d.y==="number");
   const n=docs.length;
-  $("countNum").textContent=n;$("countLbl").textContent=n===1?"Ergebnis":"Ergebnisse";
+  $("countNum").textContent=n;$("countLbl").textContent=n===1?"Ergebnis":"Ergebnisse";$("qrCount").textContent=n;$("qrCountLbl").textContent=n===1?"Ergebnis":"Ergebnisse";
   if(n<3){$("waiting").hidden=false;$("resultBox").hidden=true;
     $("waitTxt").textContent=`Der Gruppenkompass erscheint ab drei Ergebnissen, damit niemand erkennbar ist. Bisher: ${n}.`;return}
   $("waiting").hidden=true;$("resultBox").hidden=false;
