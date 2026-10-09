@@ -440,8 +440,10 @@ function result(viewOnly){
     <p class="note">Kein Typ ist frömmer als ein anderer. Dein Ergebnis bleibt auf diesem Gerät gespeichert und ist über „Letztes Ergebnis anzeigen“ jederzeit wieder erreichbar.</p>
     <div class="actions">
       <button class="btn" id="shareBtn">Anonym mit der Gruppe teilen</button>
+      <button class="btn btn-ghost" id="dlBtn">Als Bild speichern</button>
       <button class="btn btn-ghost" id="againBtn">Test neu starten</button>
     </div>
+    <p class="status" id="dlStatus" style="text-align:center"></p>
     <section id="groupSection" hidden style="margin:0">
       <div class="group-box">
         <p>Gib die PIN ein, die die Gruppenleitung zeigt. Übertragen wird nur deine Position im Kompass, ohne Namen.</p>
@@ -464,6 +466,7 @@ function result(viewOnly){
   reduced?grow():requestAnimationFrame(()=>requestAnimationFrame(grow));
   const dot=$('udot'); reduced?dot.classList.add('on'):setTimeout(()=>dot.classList.add('on'),300);
 
+  $('dlBtn').onclick=downloadPng;
   $('againBtn').onclick=()=>{ clearProgress(); answers=new Array(TOTAL).fill(null); lastP=0; go(0); };
   $('shareBtn').onclick=async()=>{
     $('groupSection').hidden=false; $('shareBtn').hidden=true;
@@ -473,6 +476,65 @@ function result(viewOnly){
   };
   $('pinBtn').onclick=sendPin;
   $('pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendPin(); });
+}
+
+/* ---------- Bild herunterladen ---------- */
+const HEX={mys:'#C3A3E0',esc:'#F2856D',ask:'#86C79A',apo:'#7FB2E5'};
+async function makePng(){
+  try{ await document.fonts.ready; }catch(e){}
+  const W=1080,H=1350,c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d'), r=R, T=TYPES[r.primary];
+  const SERIF='"Young Serif", Georgia, serif', SANS='Figtree, system-ui, sans-serif';
+  const fit=(txt,y,size,fam,maxW=920)=>{ let z=size; x.font=`${z}px ${fam}`; while(x.measureText(txt).width>maxW&&z>16){ z--; x.font=`${z}px ${fam}`; } x.fillText(txt,W/2,y); };
+  x.fillStyle='#131E3D'; x.fillRect(0,0,W,H);
+  x.textAlign='center'; x.fillStyle='#EEF2FA';
+  fit('Mein Frömmigkeitskompass',112,60,SERIF);
+  x.fillStyle='#A8B4CE';
+  fit('Der Frömmigkeitskompass von Thomas „Döm“ Löwen · '+new Date().toLocaleDateString('de-DE'),162,30,SANS);
+
+  // Kompass
+  const cx=W/2, cy=625, k=1.95, S=150/4;
+  x.save(); x.translate(cx,cy); x.scale(k,k);
+  const sec={mys:[180,270],esc:[270,360],ask:[0,90],apo:[90,180]}; // Canvas-Winkel: 0 = rechts, im Uhrzeigersinn
+  Object.keys(sec).forEach(t=>{ x.beginPath(); x.moveTo(0,0); x.arc(0,0,160,sec[t][0]*Math.PI/180,sec[t][1]*Math.PI/180); x.closePath();
+    x.globalAlpha=t===r.primary?.22:.08; x.fillStyle=HEX[t]; x.fill(); });
+  x.globalAlpha=1;
+  x.setLineDash([2,5]); x.strokeStyle='#2D3D6A'; x.lineWidth=1.2;
+  [1,2,3].forEach(n=>{ x.beginPath(); x.arc(0,0,n*S,0,Math.PI*2); x.stroke(); });
+  x.setLineDash([]);
+  x.strokeStyle='#C9D3E3'; x.fillStyle='#C9D3E3'; x.lineCap='round'; x.lineJoin='round';
+  [[0,90],[90,180],[180,270],[270,360]].forEach(([a1,a2])=>{ const [x1,y1]=pt(a1+20,165),[x2,y2]=pt(a2-20,165);
+    x.lineWidth=8; x.stroke(new Path2D(`M${x1},${y1} A165,165 0 0 1 ${x2},${y2}`)); });
+  [45,135,225,315].forEach(a=>{ x.save(); x.rotate(a*Math.PI/180); const p=new Path2D('M-4,-124 L4,-124 L9,-146 L-9,-146 Z'); x.lineWidth=3; x.fill(p); x.stroke(p); x.restore(); });
+  const Ts=184,w=13, star=new Path2D(`M0,${-Ts} L${w},${-w} L${Ts},0 L${w},${w} L0,${Ts} L${-w},${w} L${-Ts},0 L${-w},${-w} Z`);
+  x.lineWidth=4; x.fill(star); x.stroke(star);
+  const tp={mys:[-84,-58],esc:[84,-58],apo:[-84,74],ask:[84,74]};
+  x.font=`19px ${SERIF}`; x.textAlign='center';
+  Object.keys(tp).forEach(t=>{ x.fillStyle=HEX[t]; x.fillText(TYPES[t].name,tp[t][0],tp[t][1]); });
+  const px=r.x*S, py=-r.y*S;
+  x.globalAlpha=.3; x.fillStyle=HEX[r.primary]; x.beginPath(); x.arc(px,py,19,0,Math.PI*2); x.fill(); x.globalAlpha=1;
+  x.beginPath(); x.arc(px,py,10,0,Math.PI*2); x.fill(); x.lineWidth=3; x.strokeStyle='#131E3D'; x.stroke();
+  x.restore();
+  // Achsenbeschriftung
+  x.fillStyle='#A8B4CE'; x.font=`26px ${SANS}`; x.textAlign='center';
+  x.fillText('übernatürliches Wirken Gottes',cx,cy-206*k);
+  x.fillText('natürliches Wirken Gottes',cx,cy+218*k);
+  x.save(); x.translate(cx-208*k,cy); x.rotate(-Math.PI/2); x.fillText('Gegenwart / Diesseits',0,0); x.restore();
+  x.save(); x.translate(cx+208*k,cy); x.rotate(Math.PI/2); x.fillText('Zukunft / Jenseits',0,0); x.restore();
+
+  // Ergebnis
+  x.fillStyle='#A8B4CE'; x.font=`30px ${SANS}`; x.fillText('Ich neige am ehesten zum Typ',W/2,1128);
+  x.fillStyle=HEX[r.primary]; x.font=`76px ${SERIF}`; x.fillText(T.name,W/2,1206);
+  fit(T.short,1256,30,SERIF);
+  x.fillStyle='#CDAD7D'; x.font=`600 28px ${SANS}`; x.fillText('kompass.thomasloewen.de',W/2,H-38);
+  return await new Promise(res=>c.toBlob(res,'image/png'));
+}
+async function downloadPng(){
+  try{
+    const blob=await makePng(), url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='mein-froemmigkeitskompass.png'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+  }catch(e){ $('dlStatus').textContent='Das Bild konnte nicht erstellt werden.'; }
 }
 
 /* ---------- Gruppe (PIN, Firebase) ---------- */
