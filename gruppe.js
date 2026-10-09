@@ -1,11 +1,9 @@
-// Gruppenauswertung über Firebase Firestore.
-// Es kann dasselbe Firebase-Projekt wie beim Einfluss-Test genutzt werden.
-// Der Frömmigkeitskompass speichert in einer eigenen Sammlung („kompass“).
+// Gruppenauswertung über Firebase Firestore (Projekt „froemmigkeitskompass“).
 export const firebaseConfig = {
-  apiKey: "AIzaSyDaUrcVeUi-kjZu9INrMyfIDdvnDj-3a6A",
-  authDomain: "einfluss-test.firebaseapp.com",
-  projectId: "einfluss-test",
-  appId: "1:513238936201:web:286ad6eb73447b2394b458"
+  apiKey: "AIzaSyAOD4nNP2UwzCAsKBFQ_1Q1beAX3pipQn4",
+  authDomain: "froemmigkeitskompass.firebaseapp.com",
+  projectId: "froemmigkeitskompass",
+  appId: "1:1079817658595:web:a998c8fa6aee1b23ea25d6"
 };
 
 const V = "10.12.2";
