@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Der Frömmigkeitskompass – Thomas „Döm“ Löwen</title>
+<meta name="description" content="Wie suchst und erlebst du Gott? Ein kurzer Test zu den vier Ausrichtungen der Frömmigkeit von Thomas „Döm“ Löwen.">
+<meta property="og:title" content="Der Frömmigkeitskompass">
+<meta property="og:description" content="Finde heraus, zu welcher der vier Frömmigkeitsausrichtungen du am ehesten neigst.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#131E3D">
+<style>
+@font-face{font-family:"Young Serif";src:url("fonts/young-serif-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Figtree";src:url("fonts/figtree-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Figtree";src:url("fonts/figtree-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Figtree";src:url("fonts/figtree-latin-600-normal.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Figtree";src:url("fonts/figtree-latin-700-normal.woff2") format("woff2");font-weight:700;font-display:swap}
+:root{
+  --bg:#131E3D; --plate:#1B2950; --plate-2:#22325E; --rim:#CDAD7D; --ink:#EEF2FA; --muted:#A8B4CE;
+  --white:#F8FAFD; --white-edge:#C9D3E3; --yolk:#CDAD7D; --yolk-deep:#A88B5D;
+  --line:#2D3D6A; --focus:#CDAD7D; --on-yolk:#131E3D;
+  --mys:#C3A3E0; --esc:#F2856D; --ask:#86C79A; --apo:#7FB2E5;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:clip}
+h1,h2,h3{font-family:"Young Serif",Georgia,"Times New Roman",serif;font-weight:400;line-height:1.15;margin:0}
+p{margin:0 0 1em}
+button,input{font:inherit;color:inherit}
+input{max-width:100%;min-width:0}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:6px}
+[hidden]{display:none!important}
+svg{max-width:100%;height:auto;display:block}
+.wrap{max-width:720px;margin:0 auto;padding:32px 20px 64px}
+.muted{color:var(--muted)}
+.small{font-size:.9rem;color:var(--muted);margin-top:12px}
+
+.btn{display:inline-block;border:0;border-radius:999px;padding:14px 30px;background:var(--rim);color:var(--on-yolk);font-weight:600;font-size:1.02rem}
+.btn:hover{filter:brightness(1.06)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid #3C4E80;padding:12px 24px}
+.linkbtn{background:none;border:0;padding:6px 2px;text-decoration:underline;text-decoration-color:var(--yolk);text-underline-offset:3px;color:var(--ink)}
+
+/* Brand */
+.brandbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:0 0 28px}
+.wordmark{font-family:"Young Serif",Georgia,serif;font-size:1.05rem;color:var(--ink);text-decoration:none;letter-spacing:.01em}
+.wordmark:hover{color:var(--yolk)}
+.brandbar a.site{color:var(--muted);font-size:.9rem;text-decoration:none}
+.brandbar a.site:hover{color:var(--ink)}
+.byline{color:var(--muted);font-size:.98rem;margin:-4px 0 18px}
+.byline a{color:var(--ink);text-decoration-color:var(--yolk);text-underline-offset:3px}
+.site-foot{border-top:1px solid var(--line);margin-top:56px;padding-top:22px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;font-size:.88rem;color:var(--muted)}
+.site-foot nav{display:flex;gap:20px;flex-wrap:wrap}
+.site-foot a{color:var(--muted);text-decoration:none}
+.site-foot a:hover{color:var(--ink);text-decoration:underline}
+
+/* Übergänge */
+#app{transition:opacity .17s ease,transform .17s ease}
+#app.leaving{opacity:0;transform:translateY(-6px)}
+#app.entering{animation:enter .38s cubic-bezier(.25,.8,.25,1) both}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Start */
+.hero{text-align:center;padding-top:8px}
+.hero .rose{width:min(250px,64vw);margin:0 auto 22px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hero .rose .needle{transform-box:fill-box;transform-origin:50% 50%;animation:sway 6s ease-in-out infinite}
+.hero .rose.spin .needle{animation:spin 1.4s cubic-bezier(.3,1.15,.5,1)}
+@keyframes sway{0%,100%{transform:rotate(0)}22%{transform:rotate(8deg)}48%{transform:rotate(-6deg)}72%{transform:rotate(4deg)}88%{transform:rotate(-2deg)}}
+.n-north{fill:var(--ink);stroke:var(--bg);stroke-width:2.5;stroke-linejoin:round}
+.n-south{fill:var(--plate-2);stroke:var(--bg);stroke-width:2.5;stroke-linejoin:round}
+.n-cap{fill:var(--bg);stroke:var(--ink);stroke-width:3}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hero h1{font-size:clamp(2.1rem,6vw,3.1rem);margin-bottom:14px}
+.hero p{max-width:52ch;margin:0 auto 12px;color:var(--muted)}
+.hero p.tagline{color:var(--ink);font-size:1.1rem}
+.startbtns{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:22px}
+
+/* Fragen */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.back{background:none;border:0;color:var(--muted);padding:6px 0;font-weight:500}
+.back:disabled{visibility:hidden}
+.count{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.95rem}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:32px}
+.progress i{display:block;height:100%;background:var(--yolk);border-radius:6px;transition:width .45s cubic-bezier(.25,.8,.25,1)}
+.question{font-family:"Young Serif",Georgia,serif;font-size:clamp(1.35rem,3.6vw,1.7rem);line-height:1.35;margin:0 0 24px;max-width:36ch}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.side{background:var(--plate);border-radius:14px;padding:14px 16px;line-height:1.4;font-size:1.02rem}
+.side.r{text-align:right}
+.scale9{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 2px}
+.dot{flex:none;border-radius:50%;border:2px solid var(--white-edge);background:transparent;padding:0;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.dot:hover{transform:scale(1.08);border-color:var(--rim)}
+.dot[aria-pressed="true"]{background:var(--yolk);border-color:var(--yolk-deep)}
+.scale-cap{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;margin-top:10px}
+.phase-intro{color:var(--muted);margin:0 0 18px;max-width:60ch}
+.choices{display:grid;gap:10px}
+.opt{display:flex;align-items:flex-start;gap:14px;text-align:left;width:100%;background:var(--plate);border:1.5px solid var(--line);border-radius:14px;padding:13px 16px;line-height:1.4;transition:border-color .2s ease}
+.opt:hover{border-color:var(--rim)}
+.opt .rd{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--white-edge);background:var(--white);display:grid;place-items:center;margin-top:-1px}
+.opt[aria-checked="true"]{border-color:var(--yolk-deep)}
+.opt[aria-checked="true"] .rd::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--yolk)}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+
+/* Ergebnis */
+.result-head{text-align:center}
+.result-head .pre{color:var(--muted);margin:0 0 4px}
+.result-head h1{font-size:clamp(2.4rem,8vw,3.4rem);margin-bottom:8px}
+.result-head .strength{color:var(--muted);margin:0}
+.compass{margin:14px auto 36px;width:min(480px,100%)}
+section{margin-bottom:44px}
+section h2{font-size:1.6rem;margin-bottom:16px}
+.axis{margin-bottom:18px}
+.axhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.axhead h3{font-size:1.2rem}
+.axval{font-size:.95rem;color:var(--muted)}
+.axval strong{color:var(--ink);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.meter{position:relative;height:30px;margin-top:6px}
+.meter .line{position:absolute;left:0;right:0;top:13px;height:4px;border-radius:4px;background:var(--line)}
+.meter .mid{position:absolute;left:50%;top:6px;width:2px;height:18px;margin-left:-1px;background:var(--muted);opacity:.5}
+.meter .mk{position:absolute;top:5px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--yolk);border:3px solid var(--bg)}
+.meter-cap{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+details.info{margin-top:6px}
+details.info>summary{cursor:pointer;list-style:none;display:inline-block;color:var(--ink);text-decoration:underline;text-decoration-color:var(--yolk);text-underline-offset:3px;font-size:.95rem}
+details.info>summary::-webkit-details-marker{display:none}
+details.info p{color:var(--muted);font-size:.95rem;margin:12px 0 0;max-width:60ch}
+details.info strong{color:var(--yolk);font-weight:600}
+.types{display:grid;gap:12px}
+.type{background:var(--plate);border-radius:18px;border:2px solid transparent}
+.type.mine{border-color:var(--tc)}
+.type summary{display:block;list-style:none;cursor:pointer;padding:18px 20px 16px}
+.type summary::-webkit-details-marker{display:none}
+.type .badge{display:inline-block;font-size:.8rem;font-weight:600;color:var(--on-yolk);background:var(--tc);border-radius:999px;padding:3px 10px;margin-bottom:10px}
+.thead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.thead h3{font-size:1.45rem;color:var(--tc)}
+.thead .right{display:flex;align-items:center;gap:12px}
+.pc{font-variant-numeric:tabular-nums;font-weight:600;color:var(--tc);font-size:1.05rem}
+.chev{display:inline-flex;width:32px;height:32px;border-radius:50%;border:1.5px solid #3C4E80;align-items:center;justify-content:center;transition:transform .34s cubic-bezier(.25,.8,.25,1)}
+.chev svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.type details.is-open .chev{transform:rotate(180deg)}
+.tbar{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin:10px 0 12px}
+.tbar span{display:block;height:100%;border-radius:8px;background:var(--tc);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.where{color:var(--muted);font-size:.88rem;margin:0 0 4px}
+.short{color:var(--tc);font-family:"Young Serif",Georgia,serif;font-size:1.05rem;line-height:1.4;margin:0}
+.more{padding:0 20px 18px}
+.more p{color:var(--ink);font-size:.97rem;margin:4px 0 0}
+.more dl{margin:0;font-size:.95rem}
+.more dt{font-weight:600;color:var(--tc);font-size:.88rem;margin-top:14px}
+.more dd{margin:2px 0 0;color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.note{font-size:.92rem;color:var(--muted);border-left:3px solid var(--yolk);padding:4px 0 4px 14px;margin:0 0 32px;max-width:62ch}
+.actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.group-box{background:var(--plate);border-radius:18px;padding:20px;margin-top:22px}
+.group-box p{margin:0 0 12px}
+.status{font-size:.92rem;margin-top:10px;color:var(--muted)}
+.pin-row{display:flex;gap:10px;align-items:stretch;max-width:420px}
+.pin-row input{flex:0 0 7.5rem;width:7.5rem;padding:12px 8px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.35rem;letter-spacing:.25em;text-align:center;font-variant-numeric:tabular-nums}
+.pin-row input::placeholder{letter-spacing:.1em;color:var(--muted)}
+.pin-row .btn{flex:1 1 auto;min-width:0;padding:14px 16px;white-space:nowrap}
+@media (max-width:360px){.pin-row{flex-direction:column}.pin-row input{flex:none;width:100%}}
+
+/* Kompass */
+.c-arc{fill:none;stroke:var(--white-edge);stroke-width:8;stroke-linecap:round}
+.c-diag{fill:var(--white-edge);stroke:var(--white-edge);stroke-width:3;stroke-linejoin:round}
+.c-star{fill:var(--white-edge);stroke:var(--white-edge);stroke-width:4;stroke-linejoin:round}
+.rose .c-star{fill:var(--yolk);stroke:var(--yolk)}
+.c-guide{fill:none;stroke:var(--line);stroke-width:1.2;stroke-dasharray:2 5}
+.c-axlabel{font-family:"Figtree",system-ui,sans-serif;font-size:13px;fill:var(--muted)}
+.c-type{font-family:"Young Serif",Georgia,serif;font-size:19px}
+.c-dotg{opacity:0;transform:scale(.4);transform-box:fill-box;transform-origin:center;transition:opacity .5s ease,transform .6s cubic-bezier(.3,1.5,.5,1)}
+.c-dotg.on{opacity:1;transform:scale(1)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.c-dotg{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="brandbar">
+    <a class="wordmark" href="https://thomasloewen.de" target="_blank" rel="noopener">Thomas „Döm“ Löwen</a>
+    <a class="site" href="https://thomasloewen.de" target="_blank" rel="noopener">thomasloewen.de</a>
+  </header>
+  <div id="app" aria-live="polite"></div>
+  <footer class="site-foot">
+    <span>© <span class="year"></span> Thomas „Döm“ Löwen</span>
+    <nav aria-label="Rechtliches">
+      <a href="https://thomasloewen.de" target="_blank" rel="noopener">thomasloewen.de</a>
+      <a href="https://angebote.thomasloewen.de/legal/271582326/contact" target="_blank" rel="noopener">Impressum</a>
+      <a href="https://angebote.thomasloewen.de/legal/271582326/privacy" target="_blank" rel="noopener">Datenschutz</a>
+    </nav>
+  </footer>
+</main>
+<script>document.querySelectorAll(".year").forEach(e=>e.textContent=new Date().getFullYear());</script>
+<script>
+/* ---------- Inhalte ---------- */
+const ITEMS = [
+  {ax:'v',flip:false,stem:'Bei wichtigen Entscheidungen achte ich vor allem auf …',n:'gute Gründe, den Rat anderer und die Umstände.',p:'innere Eindrücke und darauf, ob Gott konkret zu mir redet.'},
+  {ax:'h',flip:true,stem:'Beim Wort „Reich Gottes“ denke ich eher daran, …',n:'was jetzt schon wachsen kann.',p:'was Gott am Ende vollenden wird.'},
+  {ax:'v',flip:true,stem:'Gottes Wirken entdecke ich am häufigsten …',n:'im Unscheinbaren und Alltäglichen.',p:'im Außergewöhnlichen und Unerwarteten.'},
+  {ax:'h',flip:false,stem:'Eine Predigt erreicht mich, wenn sie …',n:'zeigt, wie ich heute leben kann.',p:'meinen Blick auf die Ewigkeit weitet.'},
+  {ax:'v',flip:false,stem:'Mein Glaube wächst am meisten durch …',n:'Nachdenken, Lernen und Einüben.',p:'Erlebnisse und Begegnungen mit Gott.'},
+  {ax:'h',flip:false,stem:'Bei Entscheidungen frage ich mich eher …',n:'„Was hilft hier und jetzt?“',p:'„Was zählt am Ende wirklich?“'},
+  {ax:'v',flip:true,stem:'Wenn ich anderen vom Glauben erzähle, …',n:'erkläre ich eher Gründe und Zusammenhänge.',p:'berichte ich eher, was ich mit Gott erlebt habe.'},
+  {ax:'h',flip:true,stem:'Leid in der Welt …',n:'motiviert mich vor allem, anzupacken und etwas zu verändern.',p:'lässt mich vor allem nach Gottes neuer Welt ausstrecken.'},
+  {ax:'v',flip:true,stem:'Meine ideale Gebetszeit ist …',n:'strukturiert, etwa mit Bibeltext und Gebetsliste.',p:'offen und hörend, mit Raum für Unerwartetes.'},
+  {ax:'h',flip:false,stem:'Mit Besitz und Genuss gehe ich eher so um: …',n:'Gottes Gaben dankbar genießen.',p:'bewusst verzichten, weil anderes wichtiger ist.'},
+  {ax:'v',flip:false,stem:'Wenn sich überraschend eine Tür öffnet, denke ich eher …',n:'„Gott hat mich gut darauf vorbereitet.“',p:'„Gott hat eingegriffen.“'},
+  {ax:'h',flip:true,stem:'In der Bibel lese ich am liebsten …',n:'Weisheit für den Alltag, etwa Sprüche oder die Bergpredigt.',p:'Verheißungen und Ausblicke, etwa Propheten oder Offenbarung.'},
+  {ax:'v',flip:true,stem:'An Glaubensvorbildern beeindrucken mich vor allem …',n:'Treue, Weisheit und Integrität.',p:'Vollmacht und erhörte Gebete.'},
+  {ax:'h',flip:false,stem:'Meine Hoffnung richtet sich vor allem …',n:'darauf, dass sich Dinge in meinem Leben und Umfeld zum Guten wenden.',p:'auf das, was nach diesem Leben kommt.'},
+  {ax:'v',flip:false,stem:'Wenn jemand krank ist, denke ich zuerst an …',n:'gute Behandlung und praktische Fürsorge.',p:'das Gebet um Heilung.'},
+  {ax:'h',flip:true,stem:'Gemeinde sollte vor allem …',n:'ihre Stadt heute positiv prägen.',p:'Menschen auf die Ewigkeit vorbereiten.'}
+];
+
+const GUT = [
+  {stem:'Woran merkst du am ehesten, dass Gott in deinem Leben wirkt?', opts:[
+    ['apo','Mein Glaube trägt im Alltag und hält kritischen Fragen stand.'],
+    ['mys','Ich erlebe seine Nähe spürbar.'],
+    ['ask','Ich wachse über die Jahre in Treue und Charakter.'],
+    ['esc','Ich sehe, wie er Dinge auf sein Ziel hinführt.']]},
+  {stem:'Ein Gottesdienst war für dich gut, wenn …', opts:[
+    ['esc','ich neue Hoffnung für das Kommende mitnehme.'],
+    ['apo','ich etwas besser verstanden habe und es umsetzen kann.'],
+    ['mys','ich Gott begegnet bin.'],
+    ['ask','ich herausgefordert wurde, konsequenter zu leben.']]},
+  {stem:'In einer schweren Zeit hilft dir am meisten …', opts:[
+    ['mys','ein Gebet oder Zuspruch, durch den Gott eingreift.'],
+    ['ask','geduldig festhalten, weil Gott mich durch Prüfungen formt.'],
+    ['apo','mich an das halten, was Gottes Wort über meine Lage sagt, und verantwortlich handeln.'],
+    ['esc','die Gewissheit, dass Gott am Ende alles neu macht.']]}
+];
+
+const TYPES = {
+  mys:{short:'Sucht Gottes Gegenwart im Hier und Jetzt.',name:'Mystiker',art:'den Mystiker',sx:-1,sy:1,c:'var(--mys)',where:'übernatürliches Wirken + Gegenwart',angle:-45,
+    desc:'Du suchst Gottes Gegenwart im Hier und Jetzt. Gebet ist für dich vor allem Begegnung, und du rechnest damit, dass Gott heute redet und handelt.',
+    strength:'Lebendigkeit und Nähe. Du hältst die Erwartung wach, dass Gott real erfahrbar ist.',
+    growth:'ask', growthText:'Treue auch in Zeiten, in denen du Gott nicht spürst.',
+    bible:'Maria von Bethanien, die zu Jesu Füßen sitzt und zuhört (Lk 10,39)'},
+  esc:{short:'Lebt aus der Hoffnung auf Gottes kommendes Handeln.',name:'Eschatologe',art:'den Eschatologen',sx:1,sy:1,c:'var(--esc)',where:'übernatürliches Wirken + Zukunft',angle:45,
+    desc:'Dein Blick geht auf Gottes großes Handeln, das noch kommt: seine Verheißungen, die Wiederkunft Jesu, die neue Schöpfung. Du liest die Gegenwart im Licht von Gottes Ziel.',
+    strength:'Hoffnung und Weite. Du erinnerst daran, dass Gott die Geschichte zu ihrem Ziel bringt.',
+    growth:'apo', growthText:'die große Hoffnung in konkretes Handeln hier und heute übersetzen.',
+    bible:'Johannes auf Patmos, dem Gott die Zukunft zeigt (Offb 1,9–19)'},
+  ask:{short:'Lässt sich durch Treue und Disziplin auf das Ziel hin formen.',name:'Asket',art:'den Asketen',sx:1,sy:-1,c:'var(--ask)',where:'natürliches Wirken + Zukunft',angle:135,
+    desc:'Du lebst auf das Ziel hin und lässt dich dafür formen: durch Disziplin, Verzicht und beständige geistliche Gewohnheiten. Gott wirkt für dich vor allem im langen Weg der Heiligung.',
+    strength:'Beständigkeit und Tiefe. Du bleibst treu, auch wenn es nicht leicht ist.',
+    growth:'mys', growthText:'dich von Gottes Gegenwart überraschen lassen und das Leben mit ihm auch genießen.',
+    bible:'Johannes der Täufer, der in der Wüste einfach und verzichtend lebt und auf das Kommende vorbereitet (Mt 3,1–4)'},
+  apo:{short:'Will einen durchdachten Glauben, der sich im Alltag bewährt.',name:'Apologet',art:'den Apologeten',sx:-1,sy:-1,c:'var(--apo)',where:'natürliches Wirken + Gegenwart',angle:225,
+    desc:'Du willst einen Glauben, der durchdacht ist und sich im Alltag bewährt. Gott wirkt für dich durch Verstand, Verantwortung und Menschen, die anpacken.',
+    strength:'Klarheit und Glaubwürdigkeit. Du kannst Rechenschaft über deinen Glauben geben und ihn in die Welt tragen.',
+    growth:'esc', growthText:'Raum lassen für das Geheimnis und für die Hoffnung, die über diese Welt hinausreicht.',
+    bible:'Paulus, der Zusammenhänge erklärt und den Glauben für das Leben hier und jetzt auslegt, etwa auf dem Areopag (Apg 17,22–31)'}
+};
+const ORDER = ['mys','esc','apo','ask'];
+
+const GUT_WEIGHT = 3;
+const TOTAL = ITEMS.length + GUT.length;
+
+/* ---------- Zustand & Speicher ---------- */
+const $=id=>document.getElementById(id);
+const app=$('app');
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let answers=new Array(TOTAL).fill(null), lastP=0, R=null;
+const KEY='froemmigkeitskompass-v1', KEY_RES='froemmigkeitskompass-ergebnis';
+function store(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function fetchKey(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+const valid=a=>Array.isArray(a)&&a.length===TOTAL;
+function save(done){ if(done){ store(KEY_RES,{answers,sentPin:null}); store(KEY,null); } else store(KEY,{answers}); }
+function lastResult(){ const r=fetchKey(KEY_RES); if(r&&valid(r.answers)) return r; const o=fetchKey(KEY); if(o&&o.done&&valid(o.answers)) return {answers:o.answers}; return null; }
+function progress(){ const p=fetchKey(KEY); return (p&&!p.done&&valid(p.answers))?p.answers:null; }
+function clearProgress(){ store(KEY,null); }
+function markSent(pin){ const r=lastResult()||{answers}; r.sentPin=pin; store(KEY_RES,r); }
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- Kompass ---------- */
+const rad=d=>d*Math.PI/180, pt=(deg,r)=>[r*Math.sin(rad(deg)),-r*Math.cos(rad(deg))];
+function iconParts(){
+  let s='';
+  [[0,90],[90,180],[180,270],[270,360]].forEach(([a1,a2])=>{ const [x1,y1]=pt(a1+20,165),[x2,y2]=pt(a2-20,165);
+    s+=`<path class="c-arc" d="M${x1},${y1} A165,165 0 0 1 ${x2},${y2}"/>`; });
+  [45,135,225,315].forEach(a=>{ s+=`<polygon class="c-diag" points="-4,-124 4,-124 9,-146 -9,-146" transform="rotate(${a})"/>`; });
+  const T=184,w=13;
+  s+=`<g class="star"><polygon class="c-star" points="0,${-T} ${w},${-w} ${T},0 ${w},${w} 0,${T} ${-w},${w} ${-T},0 ${-w},${-w}"/></g>`;
+  return s;
+}
+function rose(){ return `<svg class="rose" id="rose" viewBox="-195 -195 390 390" aria-hidden="true">${iconParts()}
+  <g class="needle"><polygon class="n-north" points="0,-138 12,0 -12,0"/><polygon class="n-south" points="0,138 12,0 -12,0"/><circle class="n-cap" r="9"/></g></svg>`; }
+function compassSVG(r){
+  const S=150/4, px=r.x*S, py=-r.y*S;
+  const sec={mys:'M0,0 L0,-160 A160,160 0 0 0 -160,0 Z',esc:'M0,0 L0,-160 A160,160 0 0 1 160,0 Z',
+             ask:'M0,0 L160,0 A160,160 0 0 1 0,160 Z',apo:'M0,0 L0,160 A160,160 0 0 1 -160,0 Z'};
+  let s='';
+  Object.keys(sec).forEach(k=>{ s+=`<path d="${sec[k]}" style="fill:${TYPES[k].c};opacity:${k===r.primary?.22:.08}"/>`; });
+  [1,2,3].forEach(n=>{ s+=`<circle class="c-guide" r="${n*S}"/>`; });
+  s+=iconParts();
+  s+=`<text class="c-axlabel" x="0" y="-206" text-anchor="middle">übernatürliches Wirken Gottes</text>
+      <text class="c-axlabel" x="0" y="218" text-anchor="middle">natürliches Wirken Gottes</text>
+      <text class="c-axlabel" transform="translate(-208,0) rotate(-90)" text-anchor="middle">Gegenwart / Diesseits</text>
+      <text class="c-axlabel" transform="translate(208,0) rotate(90)" text-anchor="middle">Zukunft / Jenseits</text>`;
+  const tp={mys:[-84,-58],esc:[84,-58],apo:[-84,74],ask:[84,74]};
+  Object.keys(tp).forEach(k=>{ s+=`<text class="c-type" x="${tp[k][0]}" y="${tp[k][1]}" text-anchor="middle" style="fill:${TYPES[k].c}">${TYPES[k].name}</text>`; });
+  const col=TYPES[r.primary].c;
+  s+=`<g id="udot" class="c-dotg"><circle cx="${px}" cy="${py}" r="19" style="fill:${col};opacity:.3"/><circle cx="${px}" cy="${py}" r="10" style="fill:${col};stroke:var(--bg);stroke-width:3"/></g>`;
+  return `<svg viewBox="-240 -240 480 480" role="img" aria-label="Kompass mit deinem Ergebnis: ${TYPES[r.primary].name}">${s}</svg>`;
+}
+
+/* ---------- Ablauf ---------- */
+function afterRender(){
+  const tp=app.querySelector('.progress i[data-p]');
+  if(tp) requestAnimationFrame(()=>requestAnimationFrame(()=>{ tp.style.width=tp.dataset.p+'%'; lastP=+tp.dataset.p; }));
+}
+function swap(render){
+  if(reduced||!app.firstChild){ render(); window.scrollTo(0,0); afterRender(); return; }
+  app.classList.remove('entering'); app.classList.add('leaving');
+  setTimeout(()=>{ render(); window.scrollTo(0,0); app.classList.remove('leaving'); void app.offsetWidth; app.classList.add('entering'); afterRender(); },170);
+}
+function go(i){ swap(()=>{ if(i>=TOTAL){ result(); return; } if(i<ITEMS.length) scaleQ(i); else gutQ(i); }); }
+
+function intro(){
+  const p=progress(), open=p?p.findIndex(a=>a===null):-1, last=lastResult();
+  let b='';
+  if(p&&open>0) b+=`<button class="btn" id="resume">Weitermachen bei Frage ${open+1}</button><button class="btn btn-ghost" id="start">Neu beginnen</button>`;
+  else b+=`<button class="btn" id="start">Test starten</button>`;
+  if(last) b+=`<button class="linkbtn" id="last">Letztes Ergebnis anzeigen</button>`;
+  app.innerHTML=`<div class="hero">${rose()}
+    <h1>Der Frömmigkeitskompass</h1>
+    <p class="byline">von <a href="https://thomasloewen.de" target="_blank" rel="noopener">Thomas „Döm“ Löwen</a></p>
+    <p class="tagline">Jeder Christ hat eine Grundausrichtung, wie er Gott sucht und erlebt. Finde heraus, wohin deine zeigt.</p>
+    <p>Es gibt kein Richtig oder Falsch: Alle vier Ausrichtungen finden sich in der Bibel und in allen Konfessionen.</p>
+    <div class="startbtns">${b}</div>
+    <p class="small">19 Fragen, dauert etwa 4 Minuten.</p></div>`;
+  $('start').onclick=()=>{ clearProgress(); answers=new Array(TOTAL).fill(null); lastP=0; go(0); };
+  if($('resume')) $('resume').onclick=()=>{ answers=progress(); go(answers.findIndex(a=>a===null)); };
+  if($('last')) $('last').onclick=()=>{ answers=lastResult().answers; swap(()=>result(true)); };
+  const r=$('rose'); r.onclick=()=>{ r.classList.remove('spin'); void r.getBoundingClientRect(); r.classList.add('spin'); };
+  r.addEventListener('animationend',()=>r.classList.remove('spin'));
+}
+
+function chrome(i){
+  return `<div class="topbar"><button class="back" id="back" ${i===0?'disabled':''}>Zurück</button><span class="count">Frage ${i+1} von ${TOTAL}</span></div>
+    <div class="progress"><i data-p="${(i/TOTAL)*100}" style="width:${lastP}%"></i></div>`;
+}
+function bindBack(i){ $('back').onclick=()=>{ if(i>0) go(i-1); }; }
+
+const STRENGTH=['','leicht','eher','deutlich','voll'];
+function scaleQ(i){
+  const it=ITEMS[i], L=it.flip?it.p:it.n, Rt=it.flip?it.n:it.p, sizes={4:44,3:37,2:30,1:25,0:20};
+  let dots='';
+  for(let v=-4;v<=4;v++){
+    const label=v===0?'Beides gleich':`${STRENGTH[Math.abs(v)]} die ${v<0?'linke':'rechte'} Aussage`, sz=sizes[Math.abs(v)];
+    dots+=`<button class="dot" data-v="${v}" aria-pressed="${answers[i]===v}" aria-label="${label}" style="width:${sz}px;height:${sz}px"></button>`;
+  }
+  app.innerHTML=`${chrome(i)}<h2 class="question">${esc(it.stem)}</h2>
+    <div class="pair"><div class="side l">${esc(L)}</div><div class="side r">${esc(Rt)}</div></div>
+    <div class="scale9" role="group" aria-label="Wohin neigst du?">${dots}</div>
+    <div class="scale-cap"><span>links</span><span>beides gleich</span><span>rechts</span></div>`;
+  app.querySelectorAll('.dot').forEach(b=>b.onclick=()=>{
+    answers[i]=+b.dataset.v; save(false);
+    app.querySelectorAll('.dot').forEach(d=>d.setAttribute('aria-pressed',d===b));
+    setTimeout(()=>go(i+1),reduced?0:230);
+  });
+  bindBack(i);
+}
+function gutQ(i){
+  const g=GUT[i-ITEMS.length];
+  app.innerHTML=`${chrome(i)}
+    ${i===ITEMS.length?'<p class="phase-intro">Zum Schluss drei Fragen aus dem Bauch heraus. Wähle die Antwort, die dich spontan am meisten anspricht.</p>':''}
+    <h2 class="question">${esc(g.stem)}</h2>
+    <div class="choices" role="radiogroup">${g.opts.map(([k,t])=>`<button class="opt" role="radio" data-k="${k}" aria-checked="${answers[i]===k}"><span class="rd"></span><span>${esc(t)}</span></button>`).join('')}</div>`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    answers[i]=b.dataset.k; save(false);
+    app.querySelectorAll('.opt').forEach(d=>d.setAttribute('aria-checked',d===b));
+    setTimeout(()=>go(i+1),reduced?0:230);
+  });
+  bindBack(i);
+}
+
+/* ---------- Auswertung ---------- */
+function compute(){
+  const v=[],h=[];
+  ITEMS.forEach((it,i)=>{ const c=answers[i]??0, s=it.flip?-c:c; (it.ax==='v'?v:h).push(s); });
+  answers.slice(ITEMS.length).forEach(k=>{ if(k){ v.push(TYPES[k].sy*GUT_WEIGHT); h.push(TYPES[k].sx*GUT_WEIGHT); } });
+  const avg=a=>a.reduce((x,y)=>x+y,0)/a.length, y=avg(v), x=avg(h), aff={};
+  Object.keys(TYPES).forEach(k=>{ const t=TYPES[k]; aff[k]=((t.sx*x+t.sy*y+8)/16)*100; });
+  const primary=Object.keys(aff).reduce((a,b)=>aff[b]>aff[a]?b:a,'mys');
+  return {x,y,aff,primary};
+}
+function meter(title,v,neg,pos){
+  const a=Math.abs(v), num=a.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1});
+  const val=a<0.05?'genau in der Mitte':`<strong>${num}</strong> von 4 Richtung ${v>0?pos:neg}`;
+  return `<div class="axis"><div class="axhead"><h3>${title}</h3><span class="axval">${val}</span></div>
+    <div class="meter" aria-hidden="true"><div class="line"></div><div class="mid"></div><div class="mk" style="left:${(v+4)/8*100}%"></div></div>
+    <div class="meter-cap"><span>${neg}</span><span>${pos}</span></div></div>`;
+}
+function animDet(d,open){
+  d.classList.toggle('is-open',open);
+  if(d._a){ d._a.cancel(); d._a=null; }
+  if(reduced){ d.open=open; return; }
+  const sum=d.querySelector('summary'); d.style.overflow='hidden';
+  const start=d.offsetHeight; if(open) d.open=true;
+  const end=open?d.offsetHeight:sum.offsetHeight;
+  const a=d.animate({height:[start+'px',end+'px']},{duration:340,easing:'cubic-bezier(.25,.8,.25,1)'});
+  const body=[...d.children].filter(c=>c!==sum);
+  body.forEach(c=>c.animate({opacity:open?[0,1]:[1,0]},{duration:open?380:200,easing:'ease',fill:'both'}));
+  d._a=a;
+  a.onfinish=()=>{ d._a=null; if(!open) d.open=false; d.style.overflow=''; body.forEach(c=>c.getAnimations().forEach(x=>x.cancel())); };
+  a.oncancel=()=>{ d.style.overflow=''; };
+}
+
+function result(viewOnly){
+  if(!viewOnly) save(true);
+  R=compute(); const r=R, T=TYPES[r.primary];
+  const d=Math.min(Math.hypot(r.x,r.y)/4,1);
+  const strength=d<0.15?'Sehr ausgewogen, mit leichter Neigung zu diesem Typ.':d<0.4?'Leichte Neigung':d<0.7?'Deutliche Neigung':'Starke Neigung';
+  const sorted=[...ORDER].sort((a,b)=>r.aff[b]-r.aff[a]);
+  const cards=sorted.map(k=>{ const t=TYPES[k], mine=k===r.primary, pct=r.aff[k].toFixed(0);
+    return `<article class="type${mine?' mine':''}" style="--tc:${t.c}"><details><summary>
+      ${mine?'<span class="badge">Deine Ausrichtung</span>':''}
+      <div class="thead"><h3>${t.name}</h3><span class="right"><span class="pc">${pct} %</span><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span></span></div>
+      <div class="tbar" aria-hidden="true"><span data-w="${pct}" style="width:0"></span></div>
+      <p class="where">${t.where}</p><p class="short">${t.short}</p><span class="sr">Mehr erfahren</span></summary>
+      <div class="more"><p>${t.desc}</p><dl><dt>Stärke</dt><dd>${t.strength}</dd>
+        <dt>Von ${TYPES[t.growth].art} lernen</dt><dd>${t.growthText.charAt(0).toUpperCase()+t.growthText.slice(1)}</dd>
+        <dt>Biblisches Beispiel</dt><dd>${t.bible}</dd></dl></div></details></article>`; }).join('');
+  const sent=(lastResult()||{}).sentPin;
+
+  app.innerHTML=`<div class="result-head"><p class="pre">Du neigst am ehesten zum Typ</p>
+      <h1 style="color:${T.c}">${T.name}</h1><p class="strength">${strength}</p></div>
+    <div class="compass">${compassSVG(r)}</div>
+    <section><h2>Deine Position</h2>
+      ${meter('Gottes Wirken',r.y,'natürlich','übernatürlich')}
+      ${meter('Blickrichtung',r.x,'Gegenwart','Zukunft')}
+      <details class="info"><summary>Was bedeuten die Achsen?</summary>
+        <p><strong>Gottes Wirken:</strong> Erwartest du Gott eher im Übernatürlichen (Eingreifen, Reden, Wunder, spürbare Gegenwart) oder im Natürlichen (Schöpfung, Verstand, Gewohnheiten, Menschen)? Beides ist Gottes Wirken.</p>
+        <p><strong>Blickrichtung:</strong> Richtet sich dein Glaube eher auf dieses Leben und die Welt heute oder auf Gottes Verheißungen, die Vollendung und die Ewigkeit?</p></details>
+    </section>
+    <section><h2>So nah bist du den vier Typen</h2><div class="types">${cards}</div></section>
+    <p class="note">Kein Typ ist frömmer als ein anderer. Dein Ergebnis bleibt auf diesem Gerät gespeichert und ist über „Letztes Ergebnis anzeigen“ jederzeit wieder erreichbar.</p>
+    <div class="actions">
+      <button class="btn" id="shareBtn">Anonym mit der Gruppe teilen</button>
+      <button class="btn btn-ghost" id="againBtn">Test neu starten</button>
+    </div>
+    <section id="groupSection" hidden style="margin:0">
+      <div class="group-box">
+        <p>Gib die PIN ein, die die Gruppenleitung zeigt. Übertragen wird nur deine Position im Kompass, ohne Namen.</p>
+        <div class="pin-row">
+          <input id="pinInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" size="4" placeholder="PIN" aria-label="Gruppen-PIN" autocomplete="off" enterkeyhint="send">
+          <button class="btn" id="pinBtn">Anonym senden</button>
+        </div>
+        <p class="status" id="groupStatus">${sent?`Dein Ergebnis wurde an die Gruppe ${sent} gesendet.`:''}</p>
+      </div>
+    </section>`;
+
+  const dets=[...app.querySelectorAll('details')];
+  dets.forEach(dd=>dd.querySelector('summary').addEventListener('click',e=>{
+    e.preventDefault(); const open=!dd.classList.contains('is-open');
+    if(open) dets.forEach(o=>{ if(o!==dd&&o.classList.contains('is-open')) animDet(o,false); });
+    animDet(dd,open);
+  }));
+  const bs=[...app.querySelectorAll('[data-w]')];
+  const grow=()=>bs.forEach((b,j)=>{ if(!reduced) b.style.transitionDelay=(350+j*110)+'ms'; b.style.width=b.dataset.w+'%'; });
+  reduced?grow():requestAnimationFrame(()=>requestAnimationFrame(grow));
+  const dot=$('udot'); reduced?dot.classList.add('on'):setTimeout(()=>dot.classList.add('on'),300);
+
+  $('againBtn').onclick=()=>{ clearProgress(); answers=new Array(TOTAL).fill(null); lastP=0; go(0); };
+  $('shareBtn').onclick=async()=>{
+    $('groupSection').hidden=false; $('shareBtn').hidden=true;
+    const g=await connect();
+    if(!g){ $('pinInput').disabled=true; $('pinBtn').disabled=true; $('groupStatus').textContent='Die Gruppenauswertung ist hier noch nicht eingerichtet.'; }
+    else { $('pinInput').focus(); $('pinInput').scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'}); }
+  };
+  $('pinBtn').onclick=sendPin;
+  $('pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendPin(); });
+}
+
+/* ---------- Gruppe (PIN, Firebase) ---------- */
+let G=null;
+async function connect(){
+  if(G!==null) return G;
+  try{ const m=await import('./gruppe.js'); G=await m.connect(); }catch(e){ G=false; }
+  return G;
+}
+async function sendPin(){
+  const pin=$('pinInput').value.replace(/\D/g,''), st=$('groupStatus');
+  if(pin.length!==4){ st.textContent='Bitte gib die vierstellige PIN ein.'; return; }
+  if((lastResult()||{}).sentPin===pin){ st.textContent='Du hast dein Ergebnis bereits an diese Gruppe gesendet.'; return; }
+  const g=await connect(); if(!g){ st.textContent='Die Gruppenauswertung ist gerade nicht erreichbar.'; return; }
+  const {db,fs}=g;
+  $('pinBtn').disabled=true; st.textContent='Wird gesendet …';
+  try{
+    const snap=await fs.getDoc(fs.doc(db,'kompass',pin));
+    if(!snap.exists()){ st.textContent='Diese PIN gibt es nicht. Frag bei der Gruppenleitung nach.'; return; }
+    const r2=v=>Math.round(v*100)/100;
+    await fs.addDoc(fs.collection(db,'kompass',pin,'results'),{x:r2(R.x),y:r2(R.y),t:R.primary,at:fs.serverTimestamp()});
+    markSent(pin); $('pinInput').value='';
+    st.textContent='Danke! Dein Ergebnis ist anonym in der Gruppenauswertung.';
+  }catch(e){ st.textContent='Das hat gerade nicht geklappt. Prüf deine Verbindung und versuch es noch einmal.'; }
+  finally{ $('pinBtn').disabled=false; }
+}
+
+intro();
+</script>
+</body>
+</html>
