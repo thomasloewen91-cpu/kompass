@@ -40,7 +40,7 @@ svg{max-width:100%;height:auto;display:block}
 .muted{color:var(--muted)}
 .small{font-size:.9rem;color:var(--muted);margin-top:12px}
 
-.btn{display:inline-block;border:0;border-radius:999px;padding:14px 30px;background:var(--rim);color:var(--on-yolk);font-weight:600;font-size:1.02rem}
+.btn{display:inline-block;border:0;border-radius:0;padding:14px 30px;background:var(--rim);color:var(--on-yolk);font-weight:600;font-size:1.02rem}
 .btn:hover{filter:brightness(1.06)}
 .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
 .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid #3C4E80;padding:12px 24px}
@@ -75,7 +75,7 @@ svg{max-width:100%;height:auto;display:block}
 .n-south{fill:var(--plate-2);stroke:var(--bg);stroke-width:2.5;stroke-linejoin:round}
 .n-cap{fill:var(--bg);stroke:var(--ink);stroke-width:3}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.hero h1{font-size:clamp(2.1rem,6vw,3.1rem);margin-bottom:14px}
+.hero h1{font-size:clamp(1.6rem,7.6vw,3.1rem);margin-bottom:14px;overflow-wrap:break-word}
 .hero p{max-width:52ch;margin:0 auto 12px;color:var(--muted)}
 .hero p.tagline{color:var(--ink);font-size:1.1rem}
 .startbtns{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:22px}
@@ -98,12 +98,12 @@ svg{max-width:100%;height:auto;display:block}
 .scale-cap{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;margin-top:10px}
 .phase-intro{color:var(--muted);margin:0 0 18px;max-width:60ch}
 .choices{display:grid;gap:10px}
-.opt{display:flex;align-items:flex-start;gap:14px;text-align:left;width:100%;background:var(--plate);border:1.5px solid var(--line);border-radius:14px;padding:13px 16px;line-height:1.4;transition:border-color .2s ease}
+.opt{display:flex;align-items:flex-start;gap:14px;text-align:left;width:100%;background:var(--plate);border:1.5px solid var(--line);border-radius:0;padding:13px 16px;line-height:1.4;transition:border-color .2s ease}
 .opt:hover{border-color:var(--rim)}
 .opt .rd{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--white-edge);background:var(--white);display:grid;place-items:center;margin-top:-1px}
 .opt[aria-checked="true"]{border-color:var(--yolk-deep)}
 .opt[aria-checked="true"] .rd::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--yolk)}
-@media (max-width:560px){.pair{grid-template-columns:1fr}}
+@media (max-width:560px){.wrap{padding:24px 16px 56px}.pair{gap:8px}.side{padding:11px 12px;font-size:.92rem;line-height:1.38;hyphens:auto;-webkit-hyphens:auto}.question{font-size:1.25rem}.scale9{gap:2px;padding:6px 0}}
 
 /* Ergebnis */
 .result-head{text-align:center}
@@ -119,7 +119,7 @@ section h2{font-size:1.6rem;margin-bottom:16px}
 .axval{font-size:.95rem;color:var(--muted)}
 .axval strong{color:var(--ink);font-size:1.15rem;font-variant-numeric:tabular-nums}
 .meter{position:relative;height:30px;margin-top:6px}
-.meter .line{position:absolute;left:0;right:0;top:13px;height:4px;border-radius:4px;background:var(--line)}
+.meter .line{position:absolute;left:0;right:0;top:13px;height:4px;border-radius:0;background:var(--line)}
 .meter .mid{position:absolute;left:50%;top:6px;width:2px;height:18px;margin-left:-1px;background:var(--muted);opacity:.5}
 .meter .mk{position:absolute;top:5px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--yolk);border:3px solid var(--bg)}
 .meter-cap{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
@@ -133,12 +133,12 @@ details.info strong{color:var(--yolk);font-weight:600}
 .type.mine{border-color:var(--tc)}
 .type summary{display:block;list-style:none;cursor:pointer;padding:18px 20px 16px}
 .type summary::-webkit-details-marker{display:none}
-.type .badge{display:inline-block;font-size:.8rem;font-weight:600;color:var(--on-yolk);background:var(--tc);border-radius:999px;padding:3px 10px;margin-bottom:10px}
+.type .badge{display:inline-block;font-size:.8rem;font-weight:600;color:var(--on-yolk);background:var(--tc);border-radius:0;padding:3px 10px;margin-bottom:10px}
 .thead{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .thead h3{font-size:1.45rem;color:var(--tc)}
 .thead .right{display:flex;align-items:center;gap:12px}
 .pc{font-variant-numeric:tabular-nums;font-weight:600;color:var(--tc);font-size:1.05rem}
-.chev{display:inline-flex;width:32px;height:32px;border-radius:50%;border:1.5px solid #3C4E80;align-items:center;justify-content:center;transition:transform .34s cubic-bezier(.25,.8,.25,1)}
+.chev{display:inline-flex;width:32px;height:32px;border-radius:0;border:1.5px solid #3C4E80;align-items:center;justify-content:center;transition:transform .34s cubic-bezier(.25,.8,.25,1)}
 .chev svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .type details.is-open .chev{transform:rotate(180deg)}
 .tbar{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin:10px 0 12px}
@@ -325,7 +325,7 @@ function intro(){
   else b+=`<button class="btn" id="start">Test starten</button>`;
   if(last) b+=`<button class="linkbtn" id="last">Letztes Ergebnis anzeigen</button>`;
   app.innerHTML=`<div class="hero">${rose()}
-    <h1>Der Frömmigkeitskompass</h1>
+    <h1>Der Frömmigkeits&shy;kompass</h1>
     <p class="byline">von <a href="https://thomasloewen.de" target="_blank" rel="noopener">Thomas „Döm“ Löwen</a></p>
     <p class="tagline">Jeder Christ hat eine Grundausrichtung, wie er Gott sucht und erlebt. Finde heraus, wohin deine zeigt.</p>
     <p>Es gibt kein Richtig oder Falsch: Alle vier Ausrichtungen finden sich in der Bibel und in allen Konfessionen.</p>
