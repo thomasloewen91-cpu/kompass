@@ -18,7 +18,7 @@
 :root{
   --bg:#131E3D; --plate:#1B2950; --plate-2:#22325E; --rim:#CDAD7D; --ink:#EEF2FA; --muted:#A8B4CE;
   --white:#F8FAFD; --white-edge:#C9D3E3; --yolk:#CDAD7D; --yolk-deep:#A88B5D;
-  --line:#2D3D6A; --focus:#CDAD7D; --on-yolk:#131E3D;
+  --line:#2D3D6A; --warn:#E5675B; --focus:#CDAD7D; --on-yolk:#131E3D;
   --mys:#C3A3E0; --esc:#F2856D; --ask:#86C79A; --apo:#7FB2E5;
   color-scheme:dark;
   box-sizing:border-box;
@@ -123,6 +123,21 @@ section h2{font-size:1.6rem;margin-bottom:16px}
 .meter .mid{position:absolute;left:50%;top:6px;width:2px;height:18px;margin-left:-1px;background:var(--muted);opacity:.5}
 .meter .mk{position:absolute;top:5px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--yolk);border:3px solid var(--bg)}
 .meter-cap{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+.meter .zone{position:absolute;top:13px;height:4px;width:12.5%;background:var(--warn)}
+.meter .zone.l{left:0}.meter .zone.r{right:0}
+.zone-legend{font-size:.85rem;color:var(--muted);margin:2px 0 14px;display:flex;align-items:center;gap:8px}
+.zone-legend i{display:inline-block;width:22px;height:4px;background:var(--warn)}
+.warn-box{border-left:3px solid var(--warn);background:var(--plate);padding:14px 16px;margin:6px 0 14px}
+.warn-box strong{display:block;color:var(--warn);font-weight:600;margin-bottom:4px}
+.warn-box p{margin:0;font-size:.95rem}
+dialog.lead{background:var(--plate);color:var(--ink);border:0;padding:26px 24px 22px;max-width:min(540px,calc(100vw - 32px));width:100%}
+dialog.lead::backdrop{background:rgba(8,12,28,.72)}
+dialog.lead h2{font-size:1.5rem;margin-bottom:12px}
+dialog.lead p{color:var(--muted);font-size:.98rem}
+dialog.lead a.mail{color:var(--ink);font-weight:600;text-decoration-color:var(--yolk);text-underline-offset:3px;overflow-wrap:anywhere}
+dialog.lead .actions{justify-content:flex-start;margin-top:18px}
+.group-box{text-align:center}
+.group-box .pin-row{margin:0 auto;justify-content:center}
 details.info{margin-top:6px}
 details.info>summary{cursor:pointer;list-style:none;display:inline-block;color:var(--ink);text-decoration:underline;text-decoration-color:var(--yolk);text-underline-offset:3px;font-size:.95rem}
 details.info>summary::-webkit-details-marker{display:none}
@@ -391,7 +406,7 @@ function meter(title,v,neg,pos){
   const a=Math.abs(v), num=a.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1});
   const val=a<0.05?'genau in der Mitte':`<strong>${num}</strong> von 4 Richtung ${v>0?pos:neg}`;
   return `<div class="axis"><div class="axhead"><h3>${title}</h3><span class="axval">${val}</span></div>
-    <div class="meter" aria-hidden="true"><div class="line"></div><div class="mid"></div><div class="mk" style="left:${(v+4)/8*100}%"></div></div>
+    <div class="meter" aria-hidden="true"><div class="line"></div><div class="zone l"></div><div class="zone r"></div><div class="mid"></div><div class="mk" style="left:${(v+4)/8*100}%"></div></div>
     <div class="meter-cap"><span>${neg}</span><span>${pos}</span></div></div>`;
 }
 function animDet(d,open){
@@ -432,6 +447,8 @@ function result(viewOnly){
     <section><h2>Deine Position</h2>
       ${meter('Gottes Wirken',r.y,'natürlich','übernatürlich')}
       ${meter('Blickrichtung',r.x,'Gegenwart','Zukunft')}
+      <p class="zone-legend"><i></i>roter Bereich: sehr starke Neigung (3 bis 4)</p>
+      ${(Math.abs(r.x)>=3||Math.abs(r.y)>=3)?`<div class="warn-box"><strong>Ein Hinweis zu deiner Ausrichtung</strong><p>Deine Ausrichtung ist ${Math.abs(r.x)>=3&&Math.abs(r.y)>=3?'auf beiden Achsen':'auf einer Achse'} sehr stark ausgeprägt. Eine klare Prägung ist eine Stärke. Achte aber darauf, dein Verständnis von Frömmigkeit nicht zu sehr zu verengen. Gerade die gegenüberliegenden Ausrichtungen können blinde Flecken sichtbar machen und deinen Glauben bereichern. Es lohnt sich, bewusst von ihnen zu lernen, besonders von ${TYPES[T.growth].art}.</p></div>`:''}
       <details class="info"><summary>Was bedeuten die Achsen?</summary>
         <p><strong>Gottes Wirken:</strong> Erwartest du Gott eher im Übernatürlichen (Eingreifen, Reden, Wunder, spürbare Gegenwart) oder im Natürlichen (Schöpfung, Verstand, Gewohnheiten, Menschen)? Beides ist Gottes Wirken.</p>
         <p><strong>Blickrichtung:</strong> Richtet sich dein Glaube eher auf dieses Leben und die Welt heute oder auf Gottes Verheißungen, die Vollendung und die Ewigkeit?</p></details>
@@ -451,9 +468,20 @@ function result(viewOnly){
           <input id="pinInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" size="4" placeholder="PIN" aria-label="Gruppen-PIN" autocomplete="off" enterkeyhint="send">
           <button class="btn" id="pinBtn">Anonym senden</button>
         </div>
+        <button class="btn btn-ghost" id="leadBtn" style="margin-top:14px;padding:10px 18px">Gruppenleiter-Modus</button>
         <p class="status" id="groupStatus">${sent?`Dein Ergebnis wurde an die Gruppe ${sent} gesendet.`:''}</p>
       </div>
-    </section>`;
+    </section>
+    <dialog class="lead" id="leadDlg" aria-labelledby="leadTitle">
+      <h2 id="leadTitle">Gruppenleiter-Modus</h2>
+      <p>Mit dem Gruppenleiter-Modus führst du den Frömmigkeitskompass mit deiner eigenen Gruppe durch: Du erhältst eine Gruppen-PIN, die Teilnehmenden senden ihre Ergebnisse anonym, und der gemeinsame Kompass erscheint live auf dem Beamer.</p>
+      <p>Wenn du Zugang zum Gruppenleiter-Modus erhalten möchtest oder Thomas „Döm“ Löwen als Referenten für deine Gruppe, Gemeinde oder Veranstaltung einladen willst, schreibe eine Nachricht an <a class="mail" href="mailto:thomas.doem.loewen@gmail.com?subject=Fr%C3%B6mmigkeitskompass%20%E2%80%93%20Gruppenleiter-Modus">thomas.doem.loewen@gmail.com</a>.</p>
+      <div class="actions">
+        <a class="btn" href="mailto:thomas.doem.loewen@gmail.com?subject=Fr%C3%B6mmigkeitskompass%20%E2%80%93%20Gruppenleiter-Modus" style="text-decoration:none">E-Mail schreiben</a>
+        <a class="btn btn-ghost" href="https://kompass.thomasloewen.de/beispiel" target="_blank" rel="noopener" style="text-decoration:none">Beispiel ansehen</a>
+        <button class="btn btn-ghost" id="leadClose">Schließen</button>
+      </div>
+    </dialog>`;
 
   const dets=[...app.querySelectorAll('details')];
   dets.forEach(dd=>dd.querySelector('summary').addEventListener('click',e=>{
@@ -475,6 +503,10 @@ function result(viewOnly){
     else { $('pinInput').focus(); $('pinInput').scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'}); }
   };
   $('pinBtn').onclick=sendPin;
+  const dlg=$('leadDlg');
+  $('leadBtn').onclick=()=>{ if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open',''); };
+  $('leadClose').onclick=()=>dlg.close?dlg.close():dlg.removeAttribute('open');
+  dlg.addEventListener('click',e=>{ if(e.target===dlg) dlg.close(); });
   $('pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendPin(); });
 }
 
