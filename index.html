@@ -136,6 +136,14 @@ dialog.lead h2{font-size:1.5rem;margin-bottom:12px}
 dialog.lead p{color:var(--muted);font-size:.98rem}
 dialog.lead a.mail{color:var(--ink);font-weight:600;text-decoration-color:var(--yolk);text-underline-offset:3px;overflow-wrap:anywhere}
 dialog.lead .actions{justify-content:flex-start;margin-top:18px}
+.video{position:relative;aspect-ratio:16/9;background:var(--plate);overflow:hidden}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-load{position:absolute;inset:0;width:100%;border:0;background:radial-gradient(circle at 50% 45%,var(--plate-2),var(--plate) 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center}
+.video-load .play{width:74px;height:74px;background:var(--yolk);display:grid;place-items:center;transition:transform .2s ease}
+.video-load:hover .play{transform:scale(1.06)}
+.video-load .play svg{width:34px;height:34px;fill:var(--on-yolk);margin-left:4px}
+.video-load .vt{font-family:"Young Serif",Georgia,serif;font-size:1.25rem;color:var(--ink)}
+.video-load .vs{font-size:.85rem;color:var(--muted);max-width:34ch}
 .group-box{text-align:center}
 .group-box .pin-row{margin:0 auto;justify-content:center}
 details.info{margin-top:6px}
@@ -472,6 +480,17 @@ function result(viewOnly){
         <p class="status" id="groupStatus">${sent?`Dein Ergebnis wurde an die Gruppe ${sent} gesendet.`:''}</p>
       </div>
     </section>
+    <section style="margin-top:48px"><h2>Mehr zum Frömmigkeitskompass</h2>
+      <p class="muted" style="margin-bottom:14px">Im Video erklärt Thomas „Döm“ Löwen, was hinter den vier Ausrichtungen steckt.</p>
+      <div class="video" id="video">
+        <button class="video-load" id="videoBtn" aria-label="Video laden und abspielen">
+          <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          <span class="vt">Video abspielen</span>
+          <span class="vs">Beim Abspielen wird eine Verbindung zu YouTube hergestellt.</span>
+        </button>
+      </div>
+      <p class="small" style="text-align:center"><a href="https://youtu.be/tgYN8nsoUJE" target="_blank" rel="noopener" style="color:var(--muted)">Auf YouTube ansehen</a></p>
+    </section>
     <dialog class="lead" id="leadDlg" aria-labelledby="leadTitle">
       <h2 id="leadTitle">Gruppenleiter-Modus</h2>
       <p>Mit dem Gruppenleiter-Modus führst du den Frömmigkeitskompass mit deiner eigenen Gruppe durch: Du erhältst eine Gruppen-PIN, die Teilnehmenden senden ihre Ergebnisse anonym, und der gemeinsame Kompass erscheint live auf dem Beamer.</p>
@@ -503,6 +522,7 @@ function result(viewOnly){
     else { $('pinInput').focus(); $('pinInput').scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'}); }
   };
   $('pinBtn').onclick=sendPin;
+  $('videoBtn').onclick=()=>{ $('video').innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/tgYN8nsoUJE?autoplay=1&rel=0" title="Video zum Frömmigkeitskompass" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'; };
   const dlg=$('leadDlg');
   $('leadBtn').onclick=()=>{ if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open',''); };
   $('leadClose').onclick=()=>dlg.close?dlg.close():dlg.removeAttribute('open');
