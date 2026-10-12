@@ -14,7 +14,7 @@
 :root{
   --bg:#131E3D; --plate:#1B2950; --plate-2:#22325E; --rim:#CDAD7D; --ink:#EEF2FA; --muted:#A8B4CE;
   --white:#F8FAFD; --white-edge:#C9D3E3; --yolk:#CDAD7D; --yolk-deep:#A88B5D;
-  --line:#2D3D6A; --focus:#CDAD7D; --on-yolk:#131E3D;
+  --line:#2D3D6A; --warn-yellow:#F2C94C; --warn-orange:#F2994A; --warn-red:#E5675B; --focus:#CDAD7D; --on-yolk:#131E3D;
   --mys:#C3A3E0; --esc:#F2856D; --ask:#86C79A; --apo:#7FB2E5;
   color-scheme:dark;
   box-sizing:border-box;
@@ -69,9 +69,22 @@ svg{max-width:100%;height:auto;display:block}
 .drow .tr{height:10px;border-radius:10px;background:var(--line);overflow:hidden}
 .drow .tr i{display:block;height:100%;border-radius:10px;background:var(--tc);transition:width .6s cubic-bezier(.2,.8,.2,1)}
 .drow .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.95rem}
-.axes{display:grid;gap:8px}
-.axes div{display:flex;justify-content:space-between;gap:12px}
-.axes span{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.axes{display:grid;gap:14px}
+.lhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lhead span{color:var(--muted);font-variant-numeric:tabular-nums}
+.lmeter{position:relative;height:26px;margin-top:4px}
+.lmeter i{position:absolute;display:block}
+.lmeter .ln{left:0;right:0;top:11px;height:4px;background:var(--line)}
+.lmeter .zn{top:11px;height:4px;width:12.5%;background:var(--warn-red)}
+.lmeter .zn.l{left:0}.lmeter .zn.r{right:0}
+.lmeter .md{left:50%;top:5px;width:2px;height:16px;margin-left:-1px;background:var(--muted);opacity:.5}
+.lmeter .mk{top:3px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--yolk);border:3px solid var(--plate);transition:left .6s cubic-bezier(.2,.8,.2,1)}
+.lcap{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+.zleg{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:8px;margin:4px 0 0;flex-wrap:wrap}
+.zleg i{display:inline-block;width:22px;height:4px;background:var(--warn-red)}
+.gwarn{border-left:4px solid var(--wc);background:var(--plate);padding:16px 18px;margin-bottom:14px}
+.gwarn strong{display:block;color:var(--wc);font-weight:600;margin-bottom:4px}
+.gwarn p{margin:0;font-size:.97rem}
 .foot{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:40px}
 /* Kompass */
 .c-arc{fill:none;stroke:var(--white-edge);stroke-width:8;stroke-linecap:round}
@@ -151,6 +164,7 @@ svg{max-width:100%;height:auto;display:block}
           <p class="sub" id="leadSub"></p>
           <div class="hl"><small>So verteilt sich die Gruppe</small><div class="dist" id="dist"></div></div>
           <div class="hl"><small>Durchschnitt auf den Achsen (Skala −4 bis +4)</small><div class="axes" id="axes"></div></div>
+          <div id="warn"></div>
         </div>
       </div>
     </div>
@@ -293,8 +307,23 @@ function render(all){
     return `<div class="drow" style="--tc:${TYPES[k].c}"><span class="nm">${TYPES[k].name}</span><div class="tr"><i style="width:${p}%"></i></div><span class="n">${counts[k]} (${p} %)</span></div>`;
   }).join("");
   const side=(v,neg,pos)=>Math.abs(v)<0.05?"genau in der Mitte":`${f1(v)} Richtung ${v>0?pos:neg}`;
-  $("axes").innerHTML=`<div><b>Gottes Wirken</b><span>${side(avg.y,"natürlich","übernatürlich")}</span></div>
-    <div><b>Blickrichtung</b><span>${side(avg.x,"Gegenwart","Zukunft")}</span></div>`;
+  const meter=(t,v,neg,pos)=>`<div><div class="lhead"><b>${t}</b><span>${side(v,neg,pos)}</span></div>
+    <div class="lmeter" aria-hidden="true"><i class="ln"></i><i class="zn l"></i><i class="zn r"></i><i class="md"></i><i class="mk" style="left:${(v+4)/8*100}%"></i></div>
+    <div class="lcap"><span>${neg}</span><span>${pos}</span></div></div>`;
+  const red=docs.filter(d=>Math.abs(d.x)>=3||Math.abs(d.y)>=3).length, share=red/n;
+  const avgRed=Math.abs(avg.x)>=3||Math.abs(avg.y)>=3;
+  $("axes").innerHTML=meter("Gottes Wirken",avg.y,"natürlich","übernatürlich")+meter("Blickrichtung",avg.x,"Gegenwart","Zukunft")+
+    `<p class="zleg"><i></i>roter Bereich: sehr starke Neigung (3 bis 4) · ${red} von ${n} ${n===1?"Person":"Personen"} auf mindestens einer Achse im roten Bereich</p>`;
+  // Gestufter Hinweis: gelb ab 25 %, orange ab 33 %, rot ab 50 % oder wenn der Durchschnitt selbst im roten Bereich liegt
+  const level=(avgRed||share>=0.5)?"rot":share>=1/3?"orange":share>=0.25?"gelb":"";
+  const opp={mys:"den Asketen",esc:"den Apologeten",ask:"den Mystikern",apo:"den Eschatologen"}[avgType];
+  const who=`${red} von ${n}`;
+  const W={
+    gelb:{c:"var(--warn-yellow)",t:"Hinweis für die Gruppe",p:`Einige in eurer Gruppe (${who}) haben auf mindestens einer Achse eine sehr starke Ausrichtung. Eine klare Prägung ist eine Stärke, sie kann aber den Blick auf andere Formen der Frömmigkeit verengen. Es lohnt sich, im Gespräch bewusst auch die gegenüberliegenden Ausrichtungen in den Blick zu nehmen.`},
+    orange:{c:"var(--warn-orange)",t:"Achtung: deutliche Einseitigkeit",p:`Ein großer Teil eurer Gruppe (${who}) hat auf mindestens einer Achse eine sehr starke Ausrichtung. Achtet darauf, dass andere Ausrichtungen nicht aus dem Blick geraten, und sprecht darüber, was ihr von ihnen lernen könnt, besonders von ${opp}.`},
+    rot:{c:"var(--warn-red)",t:"Warnung: sehr einseitige Prägung",p:`${avgRed&&share<0.5?"Der Durchschnitt eurer Gruppe liegt im roten Bereich.":`Mindestens die Hälfte eurer Gruppe (${who}) hat auf mindestens einer Achse eine sehr starke Ausrichtung.`} Eure Gruppe ist damit sehr einseitig geprägt. Das kann eine gemeinsame Stärke sein, birgt aber die Gefahr blinder Flecken. Nehmt euch bewusst Zeit, darüber zu sprechen, was euch fehlen könnte und was ihr von den anderen Ausrichtungen lernen könnt, besonders von ${opp} als eurem Gegenpol.`}
+  };
+  $("warn").innerHTML=level?`<div class="gwarn" style="--wc:${W[level].c}"><strong>${W[level].t}</strong><p>${W[level].p}</p></div>`:"";
 }
 
 document.querySelectorAll(".qr-open").forEach(b=>b.onclick=()=>{$("qrPin").textContent=$("pinShow").textContent;$("qrOverlay").hidden=false;$("qrClose").focus()});
