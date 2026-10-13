@@ -179,6 +179,8 @@ details.info strong{color:var(--yolk);font-weight:600}
 .group-box{background:var(--plate);border-radius:18px;padding:20px;margin-top:22px}
 .group-box p{margin:0 0 12px}
 .status{font-size:.92rem;margin-top:10px;color:var(--muted)}
+.startbtns .pin-row{margin:4px auto 0;justify-content:center}
+.startbtns .status{margin:0;min-height:1.4em;text-align:center}
 .pin-row{display:flex;gap:10px;align-items:stretch;max-width:420px}
 .pin-row input{flex:0 0 7.5rem;width:7.5rem;padding:12px 8px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.35rem;letter-spacing:.25em;text-align:center;font-variant-numeric:tabular-nums}
 .pin-row input::placeholder{letter-spacing:.1em;color:var(--muted)}
@@ -295,6 +297,31 @@ function lastResult(){ const r=fetchKey(KEY_RES); if(r&&valid(r.answers)) return
 function progress(){ const p=fetchKey(KEY); return (p&&!p.done&&valid(p.answers))?p.answers:null; }
 function clearProgress(){ store(KEY,null); }
 function markSent(pin){ const r=lastResult()||{answers}; r.sentPin=pin; store(KEY_RES,r); }
+/* ---------- Zugang (Kauf über Tentary oder Gruppen-PIN) ---------- */
+const KAUF_URL='https://angebote.thomasloewen.de/p/kompass/checkout';
+const KEY_PAID='kompass_zugang', KEY_GRP='kompass_gruppe';
+function hatGekauft(){ try{ return !!localStorage.getItem(KEY_PAID); }catch(e){ return false; } }
+function gruppenPin(){ try{ return localStorage.getItem(KEY_GRP)||''; }catch(e){ return ''; } }
+function darfStarten(){ return hatGekauft()||!!gruppenPin(); }
+const urlPin=(new URLSearchParams(location.search).get('pin')||'').replace(/\D/g,'').slice(0,4);
+async function pruefeGruppe(pin,st){
+  pin=String(pin).replace(/\D/g,'');
+  if(pin.length!==4){ st.textContent='Bitte gib die vierstellige PIN ein.'; return false; }
+  const g=await connect(); if(!g){ st.textContent='Die Gruppenauswertung ist gerade nicht erreichbar.'; return false; }
+  st.textContent='PIN wird geprüft …';
+  try{
+    const snap=await g.fs.getDoc(g.fs.doc(g.db,'kompass',pin));
+    if(!snap.exists()){ st.textContent='Diese PIN gibt es nicht. Frag bei der Gruppenleitung nach.'; return false; }
+    const gd=snap.data()||{};
+    if(typeof gd.max==='number'&&gd.max>0&&gd.n>=gd.max){ st.textContent='Diese Gruppe ist schon voll. Frag bei der Gruppenleitung nach.'; return false; }
+    try{ localStorage.setItem(KEY_GRP,pin); }catch(e){}
+    st.textContent=''; return true;
+  }catch(e){ st.textContent='Das hat gerade nicht geklappt. Prüf deine Verbindung und versuch es noch einmal.'; return false; }
+}
+function neuStart(){
+  if(!darfStarten()){ swap(intro); return; }
+  clearProgress(); answers=new Array(TOTAL).fill(null); lastP=0; go(0);
+}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- Kompass ---------- */
@@ -343,9 +370,17 @@ function go(i){ swap(()=>{ if(i>=TOTAL){ result(); return; } if(i<ITEMS.length) 
 
 function intro(){
   const p=progress(), open=p?p.findIndex(a=>a===null):-1, last=lastResult();
+  const darf=darfStarten();
   let b='';
-  if(p&&open>0) b+=`<button class="btn" id="resume">Weitermachen bei Frage ${open+1}</button><button class="btn btn-ghost" id="start">Neu beginnen</button>`;
-  else b+=`<button class="btn" id="start">Test starten</button>`;
+  if(p&&open>0){ b+=`<button class="btn" id="resume">Weitermachen bei Frage ${open+1}</button>`; if(darf) b+=`<button class="btn btn-ghost" id="start">Neu beginnen</button>`; }
+  else if(darf) b+=`<button class="btn" id="start">Test starten</button>`;
+  if(!darf&&!(p&&open>0)) b+=`<a class="btn" id="buy" href="${KAUF_URL}" style="text-decoration:none">Test freischalten – 1,99 €</a>
+    <button class="linkbtn" id="grpOpen" aria-expanded="false" aria-controls="grpBox">Ich bin in einer Gruppe</button>
+    <div class="pin-row" id="grpBox" hidden>
+      <input id="grpPin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" size="4" placeholder="PIN" aria-label="Gruppen-PIN" autocomplete="off" enterkeyhint="go">
+      <button class="btn" id="grpBtn">Test starten</button>
+    </div>
+    <p class="status" id="grpStatus" aria-live="polite"></p>`;
   if(last) b+=`<button class="linkbtn" id="last">Letztes Ergebnis anzeigen</button>`;
   app.innerHTML=`<div class="hero">${rose()}
     <h1>Der Frömmigkeits&shy;kompass</h1>
@@ -354,7 +389,16 @@ function intro(){
     <p>Es gibt kein Richtig oder Falsch: Alle vier Ausrichtungen finden sich in der Bibel und in allen Konfessionen.</p>
     <div class="startbtns">${b}</div>
     <p class="small">19 Fragen, dauert etwa 4 Minuten.</p></div>`;
-  $('start').onclick=()=>{ clearProgress(); answers=new Array(TOTAL).fill(null); lastP=0; go(0); };
+  if($('start')) $('start').onclick=neuStart;
+  if($('grpOpen')){
+    const box=$('grpBox'), inp=$('grpPin'), st=$('grpStatus');
+    const zeigen=()=>{ box.hidden=false; $('grpOpen').setAttribute('aria-expanded','true'); };
+    $('grpOpen').onclick=()=>{ zeigen(); inp.focus(); };
+    const los=async()=>{ $('grpBtn').disabled=true; const ok=await pruefeGruppe(inp.value,st); $('grpBtn').disabled=false; if(ok) neuStart(); };
+    $('grpBtn').onclick=los;
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') los(); });
+    if(urlPin){ zeigen(); inp.value=urlPin; pruefeGruppe(urlPin,st).then(ok=>{ if(ok) intro(); }); }
+  }
   if($('resume')) $('resume').onclick=()=>{ answers=progress(); go(answers.findIndex(a=>a===null)); };
   if($('last')) $('last').onclick=()=>{ answers=lastResult().answers; swap(()=>result(true)); };
   const r=$('rose'); r.onclick=()=>{ r.classList.remove('spin'); void r.getBoundingClientRect(); r.classList.add('spin'); };
@@ -514,7 +558,8 @@ function result(viewOnly){
   const dot=$('udot'); reduced?dot.classList.add('on'):setTimeout(()=>dot.classList.add('on'),300);
 
   $('dlBtn').onclick=downloadPng;
-  $('againBtn').onclick=()=>{ clearProgress(); answers=new Array(TOTAL).fill(null); lastP=0; go(0); };
+  $('againBtn').onclick=neuStart;
+  { const gp=gruppenPin(); if(gp&&sent!==gp) $('pinInput').value=gp; }
   $('shareBtn').onclick=async()=>{
     $('groupSection').hidden=false; $('shareBtn').hidden=true;
     const g=await connect();
@@ -606,8 +651,23 @@ async function sendPin(){
   try{
     const snap=await fs.getDoc(fs.doc(db,'kompass',pin));
     if(!snap.exists()){ st.textContent='Diese PIN gibt es nicht. Frag bei der Gruppenleitung nach.'; return; }
-    const r2=v=>Math.round(v*100)/100;
-    await fs.addDoc(fs.collection(db,'kompass',pin,'results'),{x:r2(R.x),y:r2(R.y),t:R.primary,at:fs.serverTimestamp()});
+    const r2=v=>Math.round(v*100)/100, gd=snap.data()||{};
+    const daten={x:r2(R.x),y:r2(R.y),t:R.primary,at:fs.serverTimestamp()};
+    if(typeof gd.max==='number'){
+      if(gd.max>0&&gd.n>=gd.max){ st.textContent='Diese Gruppe ist schon voll. Frag bei der Gruppenleitung nach.'; return; }
+      const ref=fs.doc(fs.collection(db,'kompass',pin,'results'));
+      const b=fs.writeBatch(db);
+      b.set(ref,daten);
+      b.update(fs.doc(db,'kompass',pin),{n:fs.increment(1),last:ref.id});
+      try{ await b.commit(); }
+      catch(e){
+        const neu=await fs.getDoc(fs.doc(db,'kompass',pin)), nd=neu.data()||{};
+        st.textContent=(nd.max>0&&nd.n>=nd.max)?'Diese Gruppe ist schon voll. Frag bei der Gruppenleitung nach.':'Das hat gerade nicht geklappt. Prüf deine Verbindung und versuch es noch einmal.';
+        return;
+      }
+    } else {
+      await fs.addDoc(fs.collection(db,'kompass',pin,'results'),daten);
+    }
     markSent(pin); $('pinInput').value='';
     st.textContent='Danke! Dein Ergebnis ist anonym in der Gruppenauswertung.';
   }catch(e){ st.textContent='Das hat gerade nicht geklappt. Prüf deine Verbindung und versuch es noch einmal.'; }

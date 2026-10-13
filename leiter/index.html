@@ -41,6 +41,9 @@ svg{max-width:100%;height:auto;display:block}
 .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 .row input{width:150px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--plate);font-size:1.3rem;letter-spacing:.3em;text-align:center}
 .status{color:var(--muted);margin-top:14px;min-height:1.5em}
+.row input.code{width:210px}
+.access{font-size:.92rem;color:var(--muted);margin-top:32px}
+.access a,.access button{color:var(--ink);background:none;border:0;padding:0;text-decoration:underline;text-decoration-color:var(--yolk);text-underline-offset:3px}
 .pinbar{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:center;background:var(--plate);border-radius:22px;padding:22px 28px;margin-bottom:36px}
 @media (max-width:760px){.pinbar{grid-template-columns:1fr;text-align:center}}
 .pin small,.join small{display:block;color:var(--muted);font-size:.95rem}
@@ -128,9 +131,20 @@ svg{max-width:100%;height:auto;display:block}
     <a class="site" href="https://thomasloewen.de" target="_blank" rel="noopener">thomasloewen.de</a>
   </header>
 
-  <div id="setup" class="setup">
+  <div id="gate" class="setup">
     <h1>Gruppenleitung</h1>
-    <p>Der Frömmigkeitskompass für Gruppen. Starte eine Gruppe, die Teilnehmenden geben nach ihrem Ergebnis die PIN ein, und hier erscheint der gemeinsame Kompass.</p>
+    <p>Gib deinen sechsstelligen Freischaltcode ein. Ab der ersten Eingabe kannst du ihn 30 Tage lang nutzen.</p>
+    <div class="row">
+      <input class="code" id="codeInput" inputmode="numeric" pattern="[0-9]*" maxlength="6" size="6" placeholder="Code" aria-label="Freischaltcode" autocomplete="off" enterkeyhint="go">
+      <button class="btn" id="codeBtn">Freischalten</button>
+    </div>
+    <p class="status" id="codeStatus" aria-live="polite"></p>
+    <p class="access" id="buyLine"></p>
+  </div>
+
+  <div id="setup" class="setup" hidden>
+    <h1>Gruppenleitung</h1>
+    <p>Der Frömmigkeitskompass für Gruppen. Starte eine Gruppe, die Teilnehmenden geben auf der Startseite des Tests die PIN ein, und hier erscheint der gemeinsame Kompass.</p>
     <div class="row"><button class="btn" id="newBtn">Neue Gruppe starten</button></div>
     <p class="muted" style="margin-top:28px">Gruppe schon gestartet?</p>
     <div class="row">
@@ -138,13 +152,14 @@ svg{max-width:100%;height:auto;display:block}
       <button class="btn btn-ghost" id="openBtn">Öffnen</button>
     </div>
     <p class="status" id="setupStatus"></p>
+    <p class="access"><span id="accessUntil"></span> <button id="codeChange">Anderen Code eingeben</button></p>
   </div>
 
   <div id="session" hidden>
     <div class="pinbar">
       <div class="pin"><small>Gruppen-PIN</small><b id="pinShow"></b></div>
-      <div class="join"><small>Zum Test</small><b id="testUrl"></b><small style="margin-top:6px">Nach dem Ergebnis „Anonym mit der Gruppe teilen“ tippen und die PIN eingeben.</small><button class="btn qr-open" style="margin-top:12px;padding:10px 18px">QR-Code anzeigen</button></div>
-      <div class="count"><b id="countNum">0</b><span id="countLbl">Ergebnisse</span></div>
+      <div class="join"><small>Zum Test</small><b id="testUrl"></b><small style="margin-top:6px">Auf der Startseite „Ich bin in einer Gruppe“ tippen und die PIN eingeben. Nach dem Ergebnis „Anonym mit der Gruppe teilen“ tippen.</small><button class="btn qr-open" style="margin-top:12px;padding:10px 18px">QR-Code anzeigen</button></div>
+      <div class="count"><b id="countNum">0</b><span id="countLbl">Ergebnisse</span><span id="limitInfo" style="display:block;margin-top:4px;font-size:.85rem"></span></div>
     </div>
 
     <div id="waiting" class="waiting">
@@ -202,6 +217,57 @@ svg{max-width:100%;height:auto;display:block}
 import { connect } from "../gruppe.js";
 const $=id=>document.getElementById(id);
 const LKEY="kompass-leitung-pin";
+
+/* ---------- Freischaltcode (6-stellig, beworben 30 Tage, technisch 31 Tage ab der ersten Eingabe) ---------- */
+// Optional: Link zu deinem Tentary-Produkt für den Gruppenleiter-Zugang. Leer lassen = Kontakt per E-Mail.
+const LEITER_KAUF_URL="https://angebote.thomasloewen.de/p/kompass-leiter/checkout";
+const CKEY="kompass-leitung-code", TAGE=31;
+let CODE=null, BIS=null, MAX=0;
+const STUFEN=[15,50,0];  // Hauskreis, Seminar, Gemeinde/Admin – welche passt, entscheidet Firebase
+const stufenName=m=>m===15?"Hauskreis":m===50?"Seminar":m>0?`Gruppe`:"unbegrenzt";
+const datum=d=>d.toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
+$("buyLine").innerHTML=LEITER_KAUF_URL
+  ?`Noch keinen Code? <a href="${LEITER_KAUF_URL}">Gruppenleiter-Zugang kaufen</a>`
+  :`Noch keinen Code? Schreib an <a href="mailto:thomas.doem.loewen@gmail.com?subject=Fr%C3%B6mmigkeitskompass%20%E2%80%93%20Gruppenleiter-Zugang">thomas.doem.loewen@gmail.com</a>`;
+
+async function pruefeCode(code){
+  const g=await db(); if(!g) return {ok:false,msg:"Die Verbindung zur Datenbank hat nicht geklappt."};
+  const {db:d,fs}=g, ref=fs.doc(d,"leitercodes",code);
+  let snap;
+  try{ snap=await fs.getDoc(ref); }
+  catch(e){ return {ok:false,msg:e&&e.code==="permission-denied"?"Dieser Code ist nicht gültig.":"Die Verbindung hat nicht geklappt. Versuch es noch einmal."}; }
+  if(!snap.exists()){
+    try{ await fs.setDoc(ref,{first:fs.serverTimestamp()}); }
+    catch(e){ try{ await fs.setDoc(ref,{first:fs.serverTimestamp(),immer:true}); }catch(e2){ /* evtl. gleichzeitig aktiviert */ } }
+    try{ snap=await fs.getDoc(ref); }catch(e){ return {ok:false,msg:"Der Code konnte nicht aktiviert werden."}; }
+    if(!snap.exists()) return {ok:false,msg:"Der Code konnte nicht aktiviert werden."};
+  }
+  if(snap.data().immer===true) return {ok:true,bis:null};
+  const first=snap.data().first; if(!first||!first.toDate) return {ok:false,msg:"Der Code konnte nicht geprüft werden."};
+  const bis=new Date(first.toDate().getTime()+TAGE*864e5);
+  if(bis<=new Date()) return {ok:false,msg:`Dieser Code ist am ${datum(bis)} abgelaufen.`};
+  return {ok:true,bis};
+}
+function freigeschaltet(code,bis){
+  CODE=code; BIS=bis; try{localStorage.setItem(CKEY,code)}catch(e){}
+  $("accessUntil").textContent=bis?`Freigeschaltet bis ${datum(bis)}.`:"Admin-Zugang, unbegrenzt gültig.";
+  $("gate").hidden=true; $("setup").hidden=false;
+}
+function sperren(msg){
+  CODE=null; BIS=null; try{localStorage.removeItem(CKEY)}catch(e){}
+  if(unsub){unsub();unsub=null}
+  $("session").hidden=true; $("setup").hidden=true; $("gate").hidden=false;
+  $("codeStatus").textContent=msg||""; $("codeInput").value="";
+}
+function nochGueltig(){ if(CODE&&(!BIS||BIS>new Date())) return true; sperren(`Dein Code ist ${BIS?`am ${datum(BIS)} `:""}abgelaufen.`); return false; }
+async function codeEingeben(){
+  const code=$("codeInput").value.replace(/\D/g,"");
+  if(code.length!==6){ $("codeStatus").textContent="Bitte gib den sechsstelligen Code ein."; return; }
+  $("codeBtn").disabled=true; $("codeStatus").textContent="Code wird geprüft …";
+  const r=await pruefeCode(code); $("codeBtn").disabled=false;
+  if(!r.ok){ $("codeStatus").textContent=r.msg; return; }
+  $("codeStatus").textContent=""; freigeschaltet(code,r.bis);
+}
 const f1=v=>Math.abs(v).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1});
 const TYPES={
   mys:{name:"Mystiker",sx:-1,sy:1,c:"var(--mys)"},
@@ -258,16 +324,24 @@ async function db(){
   return G;
 }
 async function newGroup(){
+  if(!nochGueltig())return;
   const g=await db();if(!g)return;const {db:d,fs}=g;
   $("newBtn").disabled=true;$("setupStatus").textContent="Gruppe wird angelegt …";
   for(let t=0;t<8;t++){
     const pin=String(1000+Math.floor(Math.random()*9000));
-    try{await fs.setDoc(fs.doc(d,"kompass",pin),{created:fs.serverTimestamp()});openSession(pin);$("newBtn").disabled=false;return}
-    catch(e){/* PIN schon vergeben, nächster Versuch */}
+    try{ if((await fs.getDoc(fs.doc(d,"kompass",pin))).exists()) continue; }catch(e){ continue; }
+    for(const max of STUFEN){
+      try{const b=fs.writeBatch(d);
+        b.set(fs.doc(d,"kompass",pin),{created:fs.serverTimestamp(),max,n:0,last:""});
+        b.set(fs.doc(d,"kompass",pin,"privat","leitung"),{c:CODE});
+        await b.commit();openSession(pin);$("newBtn").disabled=false;return}
+      catch(e){/* andere Stufe probieren */}
+    }
   }
   $("newBtn").disabled=false;$("setupStatus").textContent="Das hat nicht geklappt. Prüf die Verbindung und die Firestore-Regeln.";
 }
 async function openExisting(){
+  if(!nochGueltig())return;
   const pin=$("openInput").value.replace(/\D/g,"");
   if(pin.length!==4){$("setupStatus").textContent="Bitte eine vierstellige PIN eingeben.";return}
   const g=await db();if(!g)return;const {db:d,fs}=g;
@@ -279,15 +353,22 @@ function openSession(pin){
   try{localStorage.setItem(LKEY,pin)}catch(e){}
   $("setup").hidden=true;$("session").hidden=false;$("pinShow").textContent=pin;seen=new Set();
   const {db:d,fs}=G;
+  MAX=0; fs.getDoc(fs.doc(d,"kompass",pin)).then(s=>{ const m=(s.data()||{}).max; MAX=typeof m==="number"?m:0;
+    $("limitInfo").textContent=MAX>0?`${stufenName(MAX)}: bis ${MAX} Teilnehmende`:"Teilnehmerzahl unbegrenzt"; zaehler(); }).catch(()=>{});
   if(unsub)unsub();
   unsub=fs.onSnapshot(fs.collection(d,"kompass",pin,"results"),snap=>render(snap.docs.map(x=>({id:x.id,...x.data()}))),
     ()=>{$("waitTxt").textContent="Die Verbindung ist unterbrochen. Lade die Seite neu."});
 }
 
+let LASTN=0;
+function zaehler(){
+  const n=LASTN, lbl=(n===1?"Ergebnis":"Ergebnisse")+(MAX>0?` von ${MAX}`:"")+(MAX>0&&n>=MAX?" – Gruppe voll":"");
+  $("countNum").textContent=n;$("countLbl").textContent=lbl;$("qrCount").textContent=n;$("qrCountLbl").textContent=lbl;
+}
 function render(all){
   const docs=all.filter(d=>typeof d.x==="number"&&typeof d.y==="number");
   const n=docs.length;
-  $("countNum").textContent=n;$("countLbl").textContent=n===1?"Ergebnis":"Ergebnisse";$("qrCount").textContent=n;$("qrCountLbl").textContent=n===1?"Ergebnis":"Ergebnisse";
+  LASTN=n; zaehler();
   if(n<3){$("waiting").hidden=false;$("resultBox").hidden=true;
     $("waitTxt").textContent=`Der Gruppenkompass erscheint ab drei Ergebnissen, damit niemand erkennbar ist. Bisher: ${n}.`;return}
   $("waiting").hidden=true;$("resultBox").hidden=false;
@@ -330,6 +411,9 @@ document.querySelectorAll(".qr-open").forEach(b=>b.onclick=()=>{$("qrPin").textC
 $("qrClose").onclick=()=>{$("qrOverlay").hidden=true};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("qrOverlay").hidden=true});
 $("newBtn").onclick=newGroup;
+$("codeBtn").onclick=codeEingeben;
+$("codeInput").addEventListener("keydown",e=>{if(e.key==="Enter")codeEingeben()});
+$("codeChange").onclick=()=>sperren("");
 $("openBtn").onclick=openExisting;
 $("openInput").addEventListener("keydown",e=>{if(e.key==="Enter")openExisting()});
 $("leaveBtn").onclick=()=>{if(unsub)unsub();unsub=null;try{localStorage.removeItem(LKEY)}catch(e){}
@@ -338,6 +422,10 @@ $("fsBtn").onclick=()=>{if(!document.fullscreenElement)document.documentElement.
 
 (async()=>{
   const g=await db();if(!g)return;
+  let saved=null;try{saved=localStorage.getItem(CKEY)}catch(e){}
+  if(saved){ $("codeStatus").textContent="Code wird geprüft …";
+    const r=await pruefeCode(saved);
+    if(r.ok){ $("codeStatus").textContent=""; freigeschaltet(saved,r.bis); } else sperren(r.msg); }
   let last=null;try{last=localStorage.getItem(LKEY)}catch(e){}
   if(last){$("openInput").value=last;$("setupStatus").textContent=`Zuletzt geöffnet: Gruppe ${last}.`}
 })();
